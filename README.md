@@ -1,4 +1,4 @@
-**Multivariable Calculus**
+# Data Structures and Algorithms
 
 Notes & Problem Sheet solutions produced by Dom Hutchinson for the *Data Structures & Algorithms, COMS21103* module at University of Bristol for the academic year *2018-19*.
 
