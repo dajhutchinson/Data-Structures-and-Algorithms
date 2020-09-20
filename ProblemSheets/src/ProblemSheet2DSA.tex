@@ -1,0 +1,304 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1in, paperwidth=8.3in, paperheight=11.7in]{geometry}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{enumerate}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{stmaryrd}
+\usepackage[table]{xcolor}
+
+\begin{document}
+
+\pagestyle{fancy}
+\setlength\parindent{0pt}
+\allowdisplaybreaks
+
+% Counters
+\newcounter{question}
+\newcounter{qpart}[question]
+\newcounter{spart}[question]
+% commands
+\newcommand{\nats}{\mathbb{N}}
+\newcommand{\real}{\mathbb{R}}
+\newcommand{\newquestion} {\stepcounter{question}}
+\newcommand{\newqpart} {\stepcounter{qpart}}
+\newcommand{\newspart} {\stepcounter{spart}}
+\newcommand{\question}[2] {\newquestion \ifquestions \textbf{Question \arabic{question} - #1}\\ #2\\ \fi}
+\newcommand{\qpart}[1] {\newqpart \ifquestions \textbf{Question \arabic{question}.\arabic{qpart}}\\ #1\\ \fi}
+\newcommand{\solution}[1] {\ifsolutions\textbf{My Solution \arabic{question}}\\ #1\\ \fi}
+\newcommand{\spart}[1] {\newspart\ifsolutions\textbf{My Solution \arabic{question}.\arabic{spart}}\\ #1\\ \fi}
+\newcommand{\doubleplus} {+\kern-1.3ex+\kern0.8ex}
+\renewcommand{\headrulewidth}{0pt}
+
+% enviroments
+\lstnewenvironment{code}
+  {\lstset{mathescape=true,xleftmargin=.1\textwidth}}
+  {}
+
+% if
+\newif\ifquestions
+\questionstrue
+\questionsfalse
+\newif\ifsolutions
+\solutionstrue
+%\solutionsfalse
+
+% Cover page title
+\title{Data Structures \& Algorithms - Problem Sheet 2}
+\author{Dom Hutchinson}
+\date{\today}
+\maketitle
+
+% Header
+\fancyhead[L]{Dom Hutchinson}
+\fancyhead[C]{Data Structures \& Algorithms - Problem Sheet 2}
+\fancyhead[R]{\today}
+
+\question{My, how you've grown}{
+This question is about the growth of functions. List these functions of $n$ in an order such that $f(n)\in O(g(n))$ whenever $f(n)$ comes before $g(n)$ in the list.\\
+$$3\log_2n,\ 10^100,\ 3(\log_2n)^5,\ \sqrt{5},\ n!-14,\ n\log_2n,\ n^4-10n^2,\ n3^n,\ n2^n+n, n^2$$
+}
+
+\solution{
+$$10^{100},\ 3\log_2n,\ \sqrt{n},\ n\log_2n,\ n^2,\ 3(\log_2n)^5,\ n^4-10n^2,\ n2^n+n,\ n3^n,\ n!-14$$
+}
+
+\question{Albanian Ponzi}{
+(This question is loosely based on real events in Albania in 1997).\\
+A company has launched the following exclusive investment scheme, which is
+only open to Albanians. To take part, you invest 40, 000 Leks (equivalent to
+about 280 UK pounds), and recruit 2 more Albanians to the scheme in the week
+after you join, and 3 more in the week after that. At the end of the month you
+will receive the million Leks invested by the 25 people who have been recruited
+by the 5 people you have recruited.\\
+This scheme is so exciting that in addition to the Albanians who are recruited
+to the scheme by other investors, 1000 Albanians will join each week without
+being recruited by another investor.\\
+Write down a recurrence relation for the number of new investors in the scheme
+in week n, and solve it.\\
+The population of Albania is under 3 million. Show that the investment scheme
+will collapse in under 10 weeks.
+}
+
+\solution{
+\[\begin{array}{rrcl}
+&f(0)&=&0\\
+&f(1)&=&1000\\
+&f(n)&=&2f(n-1)+3f(n-2)+1000\\
+\mathrm{Set}&\lambda^2&=&2\lambda+3\\
+\implies&\lambda^2-2\lambda-3&=&0\\
+&(\lambda-3)(\lambda+1)&=&0\\
+\implies&\lambda_1=-1&\&&\lambda_2=3\\
+\mathrm{Set}&f(n)&=&\alpha(-1)^n+\beta3^n+\gamma\\
+\\\mathrm{Since}&f(n)&=&2f(n-1)+3f(n-2)+1000\\
+&&=&2[\alpha(-1)^{n-1}+\beta3^{n-1}+\gamma]+3[\alpha(-1)^{n-2}+\beta3^{n-2}+\gamma]+1000\\
+&&=&2\alpha(-1)^{n-1}+2\beta3^{n-1}+2\gamma-3\alpha(-1)^{n-1}+\beta3^{n-1}+3\gamma+1000\\
+&&=&-\alpha(-1)^{n-1}+\beta3^n+5\gamma+1000\\
+&&=&\alpha(-1)^n+\beta3^n+5\gamma+1000\\
+&&=&f(n)+4\gamma+1000\\
+\implies&\gamma&=&\underline{-250}\\
+\\&\mathrm{From\ conditions}\\
+&f(0)&=&0\\
+\implies&\alpha+\beta-250&=&0\\
+\implies&\beta&=&250-\alpha\\
+&f(1)&=&1000\\
+\implies&-\alpha+3\beta-250&=&1000\\
+\implies&-\alpha+3(250-\alpha)&=&1250\\
+\implies&-4\alpha&=&500\\
+\implies&\alpha&=&\underline{-125}\\
+\implies&\beta&=&250-(-125)\\
+&&=&\underline{375}\\
+\\\mathrm{So}&f(n)&=&125(-1)^{n+1}+375(3^n)-250\\
+\end{array}\]
+When $n=9$, $f(9)$ is greater than the population of Albanian. 
+}
+
+\question{Algorithm Choice}{
+Your colleague is trying to decide between two divide-and-conquer algorithms
+for processing n data items, where n is large. She would like to use an algorithm
+that scales well. The first algorithm splits the data into ten smaller sets of equal
+size (or, as close as to equal size as possible if n is not divisible by 10), then
+recursively runs the algorithm on each of the smaller sets in turn, and combines
+these answers. The second algorithm splits the data into two sets, one with
+b9n/10c elements and one with $\lceil\frac{n}{10}\rceil$ elements, recursively runs the algorithm
+on each of the two smaller sets, and combines the answers. The splitting and
+combining of answers takes $100n$ ms for the first algorithm and $\frac{n\sqrt{n}}{100}$ ms for the second.\\
+Advise her which algorithm to use. Justify your answer using this result men-
+tioned in a lecture.
+}
+
+\solution{
+\[\begin{array}{rcl}
+T_1(n)&=&10T_1(\lceil\frac{n}{10}\rceil)+100n\\
+T_2(n)&=&T_2(\lfloor\frac{9n}{10}\rfloor)+T_2(\lceil\frac{n}{10}\rceil)+\frac{n^{3/2}}{100}\\
+\end{array}\]
+Analysing $T_1$ with the \textit{Master Theorem}.
+$$a=10,\ b=10,\ f(n)\in O(n)\implies c=1$$
+Let $p=log_ba \implies p=log_{10}10=1=c\implies T_1\in\Theta(n\log_2n)$.\\
+Analysing $T_2$ with the \textit{Akra-Bazzi Formula}.
+$$k=2,\ a_1=1,\ a_2=1,\ d_1=\frac{9}{10},\ d_2=\frac{1}{100},\ \alpha=100,\ f(n)\in O(n^{3/2})\implies c=\frac{3}{2}$$
+Set
+$$\sum_{i=1}^ka_id_i^p=1\implies\left(\frac{9}{10}\right)^p+\left(\frac{1}{10}\right)^p=1 \implies p=1<c$$
+So $T_2(n)\in\Theta(n^{3/2})$.\\
+Since $T_1\in\Theta(n\log_2n)$ \& $T_2(n)\in\Theta(n^{3/2})$ then $T_1$ scales better than $T_2$.\\
+I would recommend using $T_1$.
+}
+
+\question{Asymptotic Behaviour}{
+For each of these recurrences, given a function $f(n)$ such that $T(n)\in\Theta(f(n))$.
+}
+
+\qpart{
+$T(n)=27T(\lfloor\frac{n}{3}\rfloor)+n$.
+}
+
+\spart{
+Analysing with \textit{Master Theorem}
+$$a=27,\ b=3,\ b\in O(n)\implies c=1$$
+Let $p=\log_ba=log_327=3\implies c<p$.\\
+Thus $T(n)\in\Theta(n^3)$.
+}
+
+\qpart{
+$T(n)=2T(\lfloor\frac{n}{4}\rfloor)+T(\lceil\frac{n}{4}\rceil)+15n^2$.
+}
+
+\spart{
+Analysing with \textit{Akra-Bazzi Formula}
+$$k=2,\ a_1=2,\ a_2=1,\ d_1=\frac{1}{4},\ d_2=\frac{1}{4},\ \alpha=15,\ c=2$$
+This obeys all conditions of \textit{Akra-Bazzi Formula}.\\
+Set
+\[\begin{array}{rcrcl}
+\sum_{i=1}^2a_id_i^p=1 &\implies& 2(\frac{1}{4})^p+(\frac{1}{4}^p)&=&1\\
+&\implies&(\frac{1}{4})^p&=&\frac{1}{3}\\
+&\implies&p<1<2&=&2\\
+&\implies& p&<&c
+\end{array}\]
+Thus $T(n)\in\Theta(n^2)$.
+}
+
+\qpart{
+$T(n)=\frac{1}{2}T(\lfloor\frac{n}{4}\rfloor)+\frac{1}{3}T(\lfloor\frac{n}{3}\rfloor)+\frac{1}{6}T(\lceil\frac{n}{6}\rceil)+6$
+}
+
+\spart{
+Analysing with \textit{Akra-Bazzi Formula}
+$$k=3,\ a_1=\frac{1}{2},\ a_2=\frac{1}{3},\ a_3=\frac{1}{6},\ d_1=\frac{1}{3},\ d_2=\frac{1}{3},\ d_3=\frac{1}{6},\ \alpha=6,\ c=0$$
+This obeys all conditions of \textit{Akra-Bazzi Formula}.\\
+Set
+\[\begin{array}{rcrcl}
+\sum_{i=1}^2a_id_i^p=1 &\implies& \frac{1}{2}(\frac{1}{4})^p+\frac{1}{3}(\frac{1}{3})^p+\frac{1}{6}(\frac{1}{6})^p&=&1\\
+&\implies&p&=&0\\
+&\implies&p&=&c
+\end{array}\]
+Thus $T(n)\in\Theta(n^0\log_2n)\equiv T(n)\in\Theta(\log_2n)$.
+}
+
+\qpart{
+$T(n)=3T(\lceil\frac{n}{2}\rceil)+T(\lfloor\frac{n}{5}\rfloor)+n^2$
+}
+
+\spart{
+Analysing with \textit{Akra-Bazzi Formula}
+$$k=2,\ a_1=3,\ a_2=1,\ d_1=\frac{1}{2},\ d_2=\frac{1}{5},\ \alpha=1,\ c=2$$
+This obeys all conditions of \textit{Akra-Bazzi Formula}.\\
+Set
+\[\begin{array}{rcrcl}
+\sum_{i=1}^2a_id_i^p=1 &\implies& 3(\frac{1}{2})^p+(\frac{1}{5})^p=1\\
+\mathrm{Suppose\ }p=2 &\implies& 3(\frac{1}{4})+\frac{1}{25}=\frac{79}{100}&<&1\\
+\mathrm{Suppose\ }p=0 &\implies& 3+1=4\\
+&\implies& 0<p<2&=&c\\
+&\implies&p&<&c
+\end{array}\]
+Thus $T(n)\in\Theta(n^2)$.
+}
+
+\question{Why five and not three?}{
+Let A be a numerical array all of whose elements are different. Consider the SELECT algorithm from lectures.\\
+Consider the algorithm SELECT-3 which does exactly the same thing as SELECT, except that instead of dividing the n elements into groups of 5, it divides
+them into groups of 3. Suppose $n = 6m + 1$ for some integer $m \geq 0$, and the
+time to divide n elements into groups of 3 and find the median of each of these
+groups is an for some real number $a > 0$.
+Show that there may be $4m + 1 = \lceil\frac{2n}{3}\rceil$ elements of $A[p,\dots,q]$ that are strictly
+greater than $x$.\\
+Show that there some $a_2 > 0$ and a lower bound $L(n)$ on the worst-case time to
+run SELECT-3 on input size $n$ which satisfies $L(n) = L(\lceil\frac{2n}{3}\rceil)+a_2L(\lceil\frac{n}{3}\rceil)+
+an$.\\
+Show that $L(n) \in \Theta(n \log_2 n)$. Deduce that SELECT-3 is not $O(n)$.
+}
+
+\spart{
+Let $n=6m+1$.\\
+There are $2m$ full groups \& one group with $1$ element.\\
+If $x$ is in the solo group then it is the median of its group.
+Then there are $m$ groups with medians less than $x$, each of which can have only $1$ element greater than $x$.\\
+And there are $m$ groups with medians greater than $x$, each of these can have $3$ elements greater than $x$.\\
+This means there are at most $1(m)+3(m)=4m$ elements greater than $x$.\\
+}
+
+\spart{
+%TODO
+}
+
+\question{Quick question on $\Theta$}{
+Show that if $f(n)\in O(g_1(n)),\ g_1(n)\in\Theta(j(n))$ and $g_2(n) \in \Theta(j(n))$ then $f(n)+g_2(n)\in\Theta(j(n))$.\\
+}
+
+\solution{
+Since $f(n)\in O(g_1(n))\ \exists\ n_0\in\nats,\ c\in\real^{>0}\ st\ 0\leq f(n) \leq cg_1(n)\ \forall\ b\geq n_0$.\\
+And, since $g_1, g_2\in\Theta(j(n))\ \exists\ n_1\in\nats,\ d_1,d_2\in\real^{>0}\ st\ 0<d_1j(n)\leq g_1(n), g_2(n) \leq d_2j(n)$.\\
+Then
+\[\begin{array}{rcccl}
+d_1j(n)&\leq&g_2(n)+f(n)&\leq& cg_1(n)+d_2j(n)\\
+&&&\leq&d_2(1+c)j(n)\\
+d_2(1+c)>0 &\implies& f(n)+g_2(n) &\in&\Theta(j(n))
+\end{array}\]
+}
+
+\question{Seven's all right}{
+As in question 5, let A be an array all of whose elements are different. Con-
+sider the algorithm SELECT-7, which does exactly the same thing as SELECT (shown in question 5), except that instead of dividing the n elements into groups
+of 5, it divides them into groups of 7 (except that the last group may have $\leq 7$
+elements). Show that there are at most $n-4(\frac{1}{2}\lceil\frac{n}{7}\rceil-2)$ elements of $A$ less than the pivot $x$, and at most $n-4(\frac{1}{2}\lceil\frac{n}{7}\rceil-2)$ elements greater than thepivot $x$. Show that there is some $n_0$ such that $n-2(\lceil\frac{n}{7}\rceil-2) \leq\lfloor\frac{11n}{14}\rfloor\ \forall\ n>n_0$.\\
+Use this and either strong induction, or the result shown in question 3 from the Akra-Bazzi forumla, to show that SELECT-7 is $O(n)$.
+}
+
+\spart{
+There are $3$ elements in $x$'s group which are less than $x$.\\ %NOTE this is never used
+There are $\frac{1}{2}\lceil\frac{n}{7}\rceil-2$ full groups with medians greater than $x$.\\
+Each of these has at least $4$ elemetns greater than $x$.\\
+So there are at least $4(\frac{1}{2}\lceil\frac{n}{7}\rceil-2)$ elements greater than $x$.\\
+So there are at most $n-4(\frac{1}{2}\lceil\frac{n}{7}\rceil-2)$ elements less than $x$.
+}
+
+\spart{
+There are $3$ elements in $x$'s group which are greater than $x$.\\ %NOTE this is never used
+There are $\frac{1}{2}\lceil\frac{n}{7}\rceil-2$ full groups with medians less than $x$.\\
+Each of these has at least $4$ elements less than $x$.\\
+So at least $4(\frac{1}{2}\lceil\frac{n}{7}\rceil-2)$ elements are less than $x$.\\
+So there are at most $n-4(\frac{1}{2}\lceil\frac{n}{7}\rceil-2)$ greater than $x$.
+}
+
+\spart{
+\[\begin{array}{rcl}
+n-2(\lceil\frac{n}{7}\rceil-2)&\leq&n-2((\frac{n}{7})-2)\\
+&=&\frac{5n}{7}+4\ \forall\ n\in\nats
+\end{array}\]
+$n-2(\lceil\frac{n}{7}\rceil-2)$ is bounded above by $\frac{5n}{7}+4$.
+\[\begin{array}{rcl}
+\lfloor\frac{11n}{14}\rfloor&\geq&\frac{11x}{14}-1
+\end{array}\]
+$\lfloor\frac{11n}{14}\rfloor$is bounded below by $\frac{11n}{14}-1$.
+\[\begin{array}{rrcl}
+\mathrm{Set}&\frac{11n}{14}-1&\geq&\frac{5n}{7}+4\\
+\implies&\frac{n}{14}&\geq&5\\
+\implies&n&\geq&70
+\end{array}\]
+$n-2(\lceil\frac{n}{7}\rceil-2)$ is bounded above by $\frac{11n}{14}-1$.
+Thus $\exists\ n_0\in\nats$ st $n-2(\lceil\frac{n}{7}\rceil-2)$ is bounded above \& $\lfloor\frac{11n}{14}\rfloor$ is bounded below by $\frac{11n}{14}-1$, thus $n-2(\lceil\frac{n}{7}\rceil-2) \leq \lfloor\frac{11n}{14}\rfloor\ \forall\ n >n_0$.
+}
+
+\end{document}
